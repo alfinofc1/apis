@@ -112,6 +112,44 @@ app.get('/api/blackboxAIChat', async (req, res) => {
   }
 });
 
+//endpoin dukun
+router.post('/api/ai/dukun', cekKey, (req, res, next) => {  // <-- Ganti GET menjadi POST
+    const content = req.body.content; // <-- Ambil data dari body request
+
+    if (!content) {
+        return res.json({
+            status: false,
+            creator: `${creator}`,
+            message: '[!] masukan data content di body request', // <-- Pesan error diubah
+        });
+    }
+
+    axios.get(`https://api.siputzx.my.id/api/ai/dukun?content=${encodeURIComponent(content)}`) // <-- Gunakan content dari body
+        .then(response => {
+            const data = response.data;
+            if (data && data.status === true && data.result) {
+                limitapikey(req.body.apikey); // <-- Ambil apikey dari body request jika diperlukan
+                res.json({
+                    status: true,
+                    creator: `${creator}`,
+                    result: data.result,
+                });
+            } else {
+                res.json({
+                    status: false,
+                    creator: `${creator}`,
+                    message: "Gagal mengambil data dari API Dukun atau data tidak sesuai format",
+                });
+            }
+
+        })
+        .catch(error => {
+            console.error("Error saat memanggil API Dukun:", error);
+            res.json(loghandler.error);
+        });
+});
+
+
 app.get("/api/gpt", async (req, res) => {
 const text = req.query.text;
 
